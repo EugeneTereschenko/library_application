@@ -1,0 +1,64 @@
+package com.library.model;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+@Getter
+@Setter
+@Table(name = "\"user\"")
+@RequiredArgsConstructor
+@Entity
+public class User implements UserDetails {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long userID;
+
+    @Column(name = "first_name", nullable = false, length = 255)
+    private String firstName;
+    @Column(name = "last_name", nullable = false, length = 255)
+    private String lastName;
+    @Column(name = "username", nullable = false, length = 255)
+    private String username;
+    @Column(name = "password", nullable = false, length = 255)
+    private String password;
+    @Column(name = "password_generate", nullable = false, length = 255)
+    private String salt;
+    @Column(name = "is_active", nullable = false, length = 255)
+    private boolean isActive;
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Collection<Role> roles = new ArrayList<>();
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
+}
