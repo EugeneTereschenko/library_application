@@ -50,8 +50,8 @@ public class UserService  {
         return userRepository.save(user);
     }
 
-    public Optional<User> getUserById(Long userId) {
-        return userRepository.findById(userId);
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     public List<User> getAllUsers() {
@@ -83,30 +83,39 @@ public class UserService  {
         }
         User userNew = new User();
         String passwordSalt = null;
-/*        if (registrationDTO.getUsername() == null && registrationDTO.getPassword() == null){
-            userNew.setFirstName(registrationDTO.getFirstName());
-            userNew.setLastName(registrationDTO.getLastName());
-            userNew.setUsername(registrationDTO.getFirstName() + "_" + registrationDTO.getLastName());
+        if (registrationDTO.getUsername() == null && registrationDTO.getPassword() == null){
+            userNew.setFirstName("");
+            userNew.setLastName("");
+            userNew.setUsername(registrationDTO.getUsername());
             userNew.setActive(Boolean.parseBoolean(registrationDTO.getIsActive()));
             passwordSalt = registrationDTO.getPassword() + generatePassayPassword(10);
             userNew.setPassword(passwordEncoder.encode(passwordSalt));
             userNew.setSalt(passwordSalt);
             return userRepository.save(userNew);
-        }*/
-
-        if (registrationDTO.getUsername() != null && registrationDTO.getPassword() != null){
-            userNew.setFirstName(registrationDTO.getFirstName());
-            userNew.setLastName(registrationDTO.getLastName());
-            userNew.setUsername(registrationDTO.getUsername());
-            userNew.setActive(Boolean.parseBoolean(registrationDTO.getIsActive()));
-            passwordSalt = registrationDTO.getPassword() + generatePassayPassword(10);
-           // userNew.setPassword(passwordEncoder.encode(passwordSalt));
-            String temp = passwordEncoder.encode(registrationDTO.getPassword());
-            userNew.setPassword(temp);
-            //userNew.setSalt(passwordSalt);
-            userNew.setSalt(temp);
         }
 
+        if (registrationDTO.getUsername() != null && registrationDTO.getPassword() != null){
+            if (registrationDTO.getFirstName() == null && registrationDTO.getLastName() == null){
+                userNew.setFirstName("");
+                userNew.setLastName("");
+                userNew.setEmail(registrationDTO.getEmail());
+                userNew.setUsername(registrationDTO.getUsername());
+                userNew.setActive(Boolean.parseBoolean(registrationDTO.getIsActive()));
+                passwordSalt = registrationDTO.getPassword();
+                userNew.setPassword(passwordEncoder.encode(passwordSalt));
+                userNew.setSalt(passwordSalt);
+            } else {
+                userNew.setFirstName(registrationDTO.getFirstName());
+                userNew.setLastName(registrationDTO.getLastName());
+                userNew.setEmail(registrationDTO.getEmail());
+                userNew.setUsername(registrationDTO.getUsername());
+                userNew.setActive(Boolean.parseBoolean(registrationDTO.getIsActive()));
+                passwordSalt = registrationDTO.getPassword();
+                userNew.setPassword(passwordEncoder.encode(passwordSalt));
+                userNew.setSalt(passwordSalt);
+            }
+        }
+        log.info(userNew.toString() + " " + userNew.getUsername() + " " + userNew.getPassword());
         return userRepository.save(userNew);
     }
 
@@ -193,5 +202,14 @@ public class UserService  {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         return jwtUtil.generateToken(userDetails.getUsername());
+    }
+
+    public User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
+            throw new UsernameNotFoundException("User not authenticated");
+        }
+        String username = authentication.getName();
+        return userRepository.findByUsername(username);
     }
 }

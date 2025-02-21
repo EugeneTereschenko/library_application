@@ -15,31 +15,53 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/")
+@CrossOrigin(origins = "http://localhost:4200")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
-    @PostMapping("api/register")
+    @PostMapping(path = "api/register")
     public ResponseEntity<User> registerUser(@RequestBody @Valid UserDTO registrationDTO) {
+        log.info("request for User controller before. registerUser: " + registrationDTO.getPassword() + " " + registrationDTO.getUsername());
+        System.out.println(registrationDTO.toString());
         User user = userService.registerUser(registrationDTO);
+
         log.info("request for User controller. registerUser: " + registrationDTO.getPassword() + " " + registrationDTO.getUsername());
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PostMapping(path = "api/login", consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> login(HttpServletResponse response,
-                      HttpSession session,
-                      @RequestBody @Valid UserDTO loginDTO) throws IOException {
+    public ResponseEntity<Map<String, String>> login(HttpServletResponse response,
+                                                     HttpSession session,
+                                                     @RequestBody @Valid UserDTO loginDTO) throws IOException {
         log.info("request for User controller. login: " + loginDTO.getPassword() + " " + loginDTO.getUsername());
-        String token= userService.authenticateUser(loginDTO.getUsername(), loginDTO.getPassword());
+        String token = userService.authenticateUser(loginDTO.getUsername(), loginDTO.getPassword());
         log.info("token: " + token);
-        return new ResponseEntity<>(token, HttpStatus.OK);
+        Map<String, String> tokenMap = new HashMap<>();
+        tokenMap.put("token", token);
+        tokenMap.put("userID", String.valueOf(userService.getUserByUsername(loginDTO.getUsername()).getUserID()));
+        return new ResponseEntity<>(tokenMap, HttpStatus.OK);
+    }
+
+
+    @GetMapping("api/users/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        User user = userService.getUserById(id);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    @GetMapping("api/users/me")
+    public ResponseEntity<User> getAuthenticatedUser() {
+        User user = userService.getAuthenticatedUser();
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @GetMapping("api/users")
