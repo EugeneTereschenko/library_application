@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BookService {
@@ -75,5 +76,22 @@ public class BookService {
         Category category = new Category();
         category.setName(categoryDTO.getName());
         return categoryRepository.save(category);
+    }
+
+    public Optional<Book> getBookById(Long bookId) {
+        return bookRepository.findById(bookId);
+    }
+
+    public void deleteBook(Long bookId) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new RuntimeException("Book not found"));
+
+        int numOfBooks = book.getNumOfBooks();
+        if (numOfBooks > 0) {
+            book.setNumOfBooks(numOfBooks - 1);
+            bookRepository.save(book);
+        } else {
+            bookRepository.deleteById(bookId);
+        }
     }
 }

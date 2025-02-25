@@ -13,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/books")
@@ -57,6 +59,15 @@ public class BookController {
     public ResponseEntity<Book> createBook(@RequestBody BookRequestDTO bookRequestDTO) {
         Book book = bookService.addBook(bookRequestDTO);
         return new ResponseEntity<>(book, HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("userService.isAuthenticated()")
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Map<String, String>> deleteBook(@PathVariable Long id) {
+        bookService.deleteBook(id);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Book deleted successfully");
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("userService.isAuthenticated()")
