@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,19 +52,21 @@ public class UserController {
         return new ResponseEntity<>(tokenMap, HttpStatus.OK);
     }
 
-
+    @PreAuthorize("userService.isAuthenticated()")
     @GetMapping("api/users/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    @PreAuthorize("userService.isAuthenticated()")
     @GetMapping("api/users/me")
     public ResponseEntity<User> getAuthenticatedUser() {
         User user = userService.getAuthenticatedUser();
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    @PreAuthorize("userService.isAuthenticated()")
     @GetMapping("api/users")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAllUsers();

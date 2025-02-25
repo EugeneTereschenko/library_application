@@ -3,20 +3,23 @@ package com.library.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
+@Entity
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String title;
+    private double price;
+    private int numOfBooks;
 
     @ManyToOne
-    @JoinColumn(name = "author_id")
     private Author author;
+
+    @ManyToOne
+    private Category category;
+
 }
 

@@ -67,9 +67,12 @@ public class UserService  {
     }
 
     public boolean isAuthenticated() {
+        log.info("Checking if user is authenticated");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info(authentication.getName() + " " + authentication.isAuthenticated());
         if (authentication == null || AnonymousAuthenticationToken.class.
                 isAssignableFrom(authentication.getClass())) {
+            log.info("User is not authenticated");
             return false;
         }
         return authentication.isAuthenticated();
