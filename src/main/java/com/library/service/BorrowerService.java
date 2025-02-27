@@ -1,5 +1,6 @@
 package com.library.service;
 // Manages borrower details and registrations.
+import com.library.exception.BorrowerNotFoundException;
 import com.library.model.Borrower;
 import com.library.model.User;
 import com.library.repository.BorrowerRepository;
@@ -30,6 +31,16 @@ public class BorrowerService {
         return borrowerRepository.findById(id);
     }
 
+    public Long getBorrowerIdByUserId(String id) {
+        User user = userService.getUserById(Long.parseLong(id));
+        Optional<Borrower> borrower = borrowerRepository.findBorrowerByName(user.getUsername());
+        if (borrower.isPresent()) {
+            return borrower.get().getId();
+        } else {
+            throw new BorrowerNotFoundException("Borrower not found");
+        }
+    }
+
     public Optional<Borrower> getBorrowerByUserName(String username) {
         return borrowerRepository.findBorrowerByName(username);
     }
@@ -40,6 +51,7 @@ public class BorrowerService {
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
+
         Borrower borrower = new Borrower();
         borrower.setEmail(user.getEmail());
         borrower.setName(user.getUsername());

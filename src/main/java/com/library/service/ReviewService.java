@@ -1,6 +1,8 @@
 package com.library.service;
 // Allows users to post reviews for books.
+
 import com.library.dto.ReviewDTO;
+import com.library.exception.BorrowerNotFoundException;
 import com.library.model.Book;
 import com.library.model.Borrower;
 import com.library.model.Review;
@@ -29,9 +31,21 @@ public class ReviewService {
             if (book.isEmpty()) {
                 throw new RuntimeException("Book not found");
             }
-            Optional<Borrower> borrower = borrowerService.getBorrowerById(reviewDTO.getBorrowerId());
+
+            Optional<Borrower> borrower;
+
+            if (reviewDTO.getBorrowerId() != null) {
+                borrower = borrowerService.getBorrowerById(reviewDTO.getBorrowerId());
+
+            } else {
+                borrower = borrowerService.getBorrowerByUserName(SecurityContextHolder.getContext().getAuthentication().getName());
+                if (borrower.isEmpty()) {
+                    borrower = borrowerService.createNewBorrowerByUserName(SecurityContextHolder.getContext().getAuthentication().getName());
+                }
+            }
+
             if (borrower.isEmpty()) {
-                borrower = borrowerService.createNewBorrowerByUserName(SecurityContextHolder.getContext().getAuthentication().getName());
+                throw new BorrowerNotFoundException("Borrower not found");
             }
 
             Review review = new Review();
@@ -52,12 +66,21 @@ public class ReviewService {
         }
         Optional<Borrower> borrower = borrowerService.getBorrowerByUserName(user.getUsername());
         if (borrower.isEmpty()) {
-            throw new RuntimeException("Borrower not found");
+            throw new BorrowerNotFoundException("Borrower not found");
         }
         return reviewRepository.findAllByBorrowerId(borrower.get().getId());
     }
 
+    public Review getReviewById(Long id) {
+        return reviewRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Review not found"));
+    }
+
     public List<Review> getAllReviews() {
         return reviewRepository.findAll();
+    }
+
+    public void deleteReview(Long id) {
+        reviewRepository.deleteById(id);
     }
 }

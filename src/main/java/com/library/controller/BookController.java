@@ -8,6 +8,7 @@ import com.library.model.Author;
 import com.library.model.Book;
 import com.library.model.Category;
 import com.library.service.BookService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/books")
 @CrossOrigin(origins = "http://localhost:4200")
@@ -57,6 +59,7 @@ public class BookController {
     @PreAuthorize("userService.isAuthenticated()")
     @PostMapping("/create")
     public ResponseEntity<Book> createBook(@RequestBody BookRequestDTO bookRequestDTO) {
+        log.info("Creating book: {}", bookRequestDTO);
         Book book = bookService.addBook(bookRequestDTO);
         return new ResponseEntity<>(book, HttpStatus.CREATED);
     }

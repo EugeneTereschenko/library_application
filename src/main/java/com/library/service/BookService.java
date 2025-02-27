@@ -6,9 +6,11 @@ import com.library.dto.CategoryDTO;
 import com.library.model.Author;
 import com.library.model.Book;
 import com.library.model.Category;
+import com.library.model.Review;
 import com.library.repository.AuthorRepository;
 import com.library.repository.BookRepository;
 import com.library.repository.CategoryRepository;
+import com.library.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +28,9 @@ public class BookService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
 
 
     public Book addBook(BookRequestDTO bookRequestDTO) {
@@ -59,6 +64,19 @@ public class BookService {
         book.setPrice(bookDTO.getPrice());
         book.setNumOfBooks(bookDTO.getNumOfBooks()); // Add this line
 
+        return bookRepository.save(book);
+    }
+
+    public Book addBookFromReview(Long id){
+        Review review = reviewRepository.getReferenceById(id);
+        Book book = bookRepository.findBookByTitle(review.getBook().getTitle())
+                .orElse(new Book());
+        book.setTitle(review.getBook().getTitle());
+        book.setAuthor(review.getBook().getAuthor());
+        book.setCategory(review.getBook().getCategory());
+        book.setPrice(review.getBook().getPrice());
+        book.setNumOfBooks(book.getNumOfBooks() + 1);
+        reviewRepository.delete(review);
         return bookRepository.save(book);
     }
 

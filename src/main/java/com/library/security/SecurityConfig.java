@@ -35,7 +35,7 @@ public class SecurityConfig {
                 .cors(withDefaults())
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/api/register/**", "/api/login/**").permitAll()
+                                .requestMatchers("/api/register/**", "/api/login/**", "/h2-console").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(sessionManagement ->
