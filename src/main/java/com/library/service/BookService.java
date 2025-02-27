@@ -69,15 +69,18 @@ public class BookService {
 
     public Book addBookFromReview(Long id){
         Review review = reviewRepository.getReferenceById(id);
-        Book book = bookRepository.findBookByTitle(review.getBook().getTitle())
-                .orElse(new Book());
-        book.setTitle(review.getBook().getTitle());
-        book.setAuthor(review.getBook().getAuthor());
-        book.setCategory(review.getBook().getCategory());
-        book.setPrice(review.getBook().getPrice());
-        book.setNumOfBooks(book.getNumOfBooks() + 1);
+        Optional<Book> book = bookRepository.findById(review.getBook().getId());
+        if (book.isEmpty()) {
+            book = Optional.of(bookRepository.findBookByTitle(review.getBook().getTitle()).orElse(new Book()));
+        }
+
+        book.get().setTitle(review.getBook().getTitle());
+        book.get().setAuthor(review.getBook().getAuthor());
+        book.get().setCategory(review.getBook().getCategory());
+        book.get().setPrice(review.getBook().getPrice());
+        book.get().setNumOfBooks(book.get().getNumOfBooks() + 1);
         reviewRepository.delete(review);
-        return bookRepository.save(book);
+        return bookRepository.save(book.get());
     }
 
     public List<Book> getAllBooks() {
