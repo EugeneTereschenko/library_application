@@ -27,7 +27,7 @@ public class ReviewService {
 
     public Review addReview(ReviewDTO reviewDTO) {
         try {
-            Optional<Book> book = bookService.getBookById(reviewDTO.getBookId());
+            Optional<Book> book = bookService.getBookById(Optional.ofNullable(reviewDTO.getBookId()).orElse(0L));
             if (book.isEmpty()) {
                 throw new RuntimeException("Book not found");
             }
@@ -35,7 +35,7 @@ public class ReviewService {
             Optional<Borrower> borrower;
 
             if (reviewDTO.getBorrowerId() != null) {
-                borrower = borrowerService.getBorrowerById(reviewDTO.getBorrowerId());
+                borrower = borrowerService.getBorrowerById(Optional.ofNullable(reviewDTO.getBorrowerId()).orElse(0L));
 
             } else {
                 borrower = borrowerService.getBorrowerByUserName(SecurityContextHolder.getContext().getAuthentication().getName());
@@ -51,8 +51,8 @@ public class ReviewService {
             Review review = new Review();
             review.setBook(book.get());
             review.setBorrower(borrower.get());
-            review.setReviewText(reviewDTO.getReviewText());
-            review.setRating(reviewDTO.getRating());
+            review.setReviewText(Optional.ofNullable(reviewDTO.getReviewText()).orElse(""));
+            review.setRating(Optional.ofNullable(reviewDTO.getRating()).orElse(0));
             return reviewRepository.save(review);
         } catch (NoSuchElementException e) {
             throw new RuntimeException("Error processing review: " + e.getMessage(), e);

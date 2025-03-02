@@ -80,44 +80,22 @@ public class UserService  {
 
     public User registerUser(UserDTO registrationDTO) {
         User user = userRepository.findByUsername(registrationDTO.getFirstName() + "_" + registrationDTO.getLastName());
-        if (user != null && user.getUsername() != registrationDTO.getFirstName() + "_" + registrationDTO.getLastName() ) {
-            user.setUsername(registrationDTO.getFirstName() + "_" + registrationDTO.getLastName() + "_" + user.getUserID());
-            return userRepository.save(user);
+        User userAdd = userRepository.findByUsername(Optional.of(registrationDTO.getUsername()).orElse("_"));
+        if (user != null || userAdd != null) {
+            throw new UserBlockedException("User already exists");
         }
         User userNew = new User();
         String passwordSalt = null;
-        if (registrationDTO.getUsername() == null && registrationDTO.getPassword() == null){
-            userNew.setFirstName("");
-            userNew.setLastName("");
-            userNew.setUsername(registrationDTO.getUsername());
-            userNew.setActive(Boolean.parseBoolean(registrationDTO.getIsActive()));
-            passwordSalt = registrationDTO.getPassword() + generatePassayPassword(10);
-            userNew.setPassword(passwordEncoder.encode(passwordSalt));
-            userNew.setSalt(passwordSalt);
-            return userRepository.save(userNew);
-        }
 
-        if (registrationDTO.getUsername() != null && registrationDTO.getPassword() != null){
-            if (registrationDTO.getFirstName() == null && registrationDTO.getLastName() == null){
-                userNew.setFirstName("");
-                userNew.setLastName("");
-                userNew.setEmail(registrationDTO.getEmail());
-                userNew.setUsername(registrationDTO.getUsername());
-                userNew.setActive(Boolean.parseBoolean(registrationDTO.getIsActive()));
-                passwordSalt = registrationDTO.getPassword();
-                userNew.setPassword(passwordEncoder.encode(passwordSalt));
-                userNew.setSalt(passwordSalt);
-            } else {
-                userNew.setFirstName(registrationDTO.getFirstName());
-                userNew.setLastName(registrationDTO.getLastName());
-                userNew.setEmail(registrationDTO.getEmail());
-                userNew.setUsername(registrationDTO.getUsername());
-                userNew.setActive(Boolean.parseBoolean(registrationDTO.getIsActive()));
-                passwordSalt = registrationDTO.getPassword();
-                userNew.setPassword(passwordEncoder.encode(passwordSalt));
-                userNew.setSalt(passwordSalt);
-            }
-        }
+        userNew.setFirstName(Optional.ofNullable(registrationDTO.getFirstName()).orElse(""));
+        userNew.setLastName(Optional.ofNullable(registrationDTO.getLastName()).orElse(""));
+        userNew.setUsername(Optional.ofNullable(registrationDTO.getUsername()).orElse(registrationDTO.getFirstName() + "_" + registrationDTO.getLastName()));
+        userNew.setActive(Optional.ofNullable(Boolean.parseBoolean(registrationDTO.getIsActive())).orElse(false));
+        userNew.setEmail(Optional.ofNullable(registrationDTO.getEmail()).orElse(""));
+        passwordSalt = Optional.ofNullable(registrationDTO.getPassword()).orElse(generatePassayPassword(8));
+        userNew.setPassword(passwordEncoder.encode(passwordSalt));
+        userNew.setSalt(passwordSalt);
+
         log.info(userNew.toString() + " " + userNew.getUsername() + " " + userNew.getPassword());
         return userRepository.save(userNew);
     }

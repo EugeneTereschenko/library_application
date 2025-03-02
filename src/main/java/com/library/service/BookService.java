@@ -35,34 +35,34 @@ public class BookService {
 
     public Book addBook(BookRequestDTO bookRequestDTO) {
         Author author = new Author();
-        author.setName(bookRequestDTO.getAuthorName());
+        author.setName(Optional.ofNullable(bookRequestDTO.getAuthorName()).orElse("Unknown"));
         author = authorRepository.save(author);
 
         Category category = new Category();
-        category.setName(bookRequestDTO.getCategoryName());
+        category.setName(Optional.ofNullable(bookRequestDTO.getCategoryName()).orElse("Unknown"));
         category = categoryRepository.save(category);
 
         Book book = new Book();
-        book.setTitle(bookRequestDTO.getTitle());
+        book.setTitle(Optional.ofNullable(bookRequestDTO.getTitle()).orElse("Unknown"));
         book.setAuthor(author);
         book.setCategory(category);
-        book.setPrice(bookRequestDTO.getPrice());
-        book.setNumOfBooks(bookRequestDTO.getNumOfBooks()); // Add this line
+        book.setPrice(Optional.ofNullable(bookRequestDTO.getPrice()).orElse(0.0));
+        book.setNumOfBooks(Optional.ofNullable(bookRequestDTO.getNumOfBooks()).orElse(0)); // Add this line
         return bookRepository.save(book);
     }
 
     public Book addBook(BookDTO bookDTO) {
-        Author author = authorRepository.findById(bookDTO.getAuthorId())
+        Author author = authorRepository.findById(Optional.ofNullable(bookDTO.getAuthorId()).orElse(0L))
                 .orElseThrow(() -> new RuntimeException("Author not found"));
-        Category category = categoryRepository.findById(bookDTO.getCategoryId())
+        Category category = categoryRepository.findById(Optional.ofNullable(bookDTO.getCategoryId()).orElse(0L))
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
         Book book = new Book();
-        book.setTitle(bookDTO.getTitle());
+        book.setTitle(Optional.ofNullable(bookDTO.getTitle()).orElse("Unknown"));
         book.setAuthor(author);
         book.setCategory(category);
-        book.setPrice(bookDTO.getPrice());
-        book.setNumOfBooks(bookDTO.getNumOfBooks()); // Add this line
+        book.setPrice(Optional.ofNullable(bookDTO.getPrice()).orElse(0.0));
+        book.setNumOfBooks(Optional.ofNullable(bookDTO.getNumOfBooks()).orElse(0)); // Add this line
 
         return bookRepository.save(book);
     }
