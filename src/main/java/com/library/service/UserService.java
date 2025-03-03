@@ -66,6 +66,10 @@ public class UserService  {
         return userRepository.findByUsername(username);
     }
 
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     public boolean isAuthenticated() {
         log.info("Checking if user is authenticated");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -95,6 +99,8 @@ public class UserService  {
         passwordSalt = Optional.ofNullable(registrationDTO.getPassword()).orElse(generatePassayPassword(8));
         userNew.setPassword(passwordEncoder.encode(passwordSalt));
         userNew.setSalt(passwordSalt);
+        userNew.setStaff(Optional.ofNullable(registrationDTO.getStaff()).orElse("Junior"));
+        userNew.setBio(Optional.ofNullable(registrationDTO.getBio()).orElse("Passionate about solving complex problems through simple and elegant designs."));
 
         log.info(userNew.toString() + " " + userNew.getUsername() + " " + userNew.getPassword());
         return userRepository.save(userNew);

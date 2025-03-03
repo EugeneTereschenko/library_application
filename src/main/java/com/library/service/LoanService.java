@@ -43,6 +43,9 @@ public class LoanService {
         if (user == null) {
             return Optional.empty();
         }
+        user.setFirstName(Optional.ofNullable(cardDTO.getFirstName()).orElse("John"));
+        user.setLastName(Optional.ofNullable(cardDTO.getLastName()).orElse("Doe"));
+        user.setEmail(Optional.ofNullable(cardDTO.getEmail()).orElse("test@test.com"));
 
         Card card = new Card();
         card.setCardName(Optional.ofNullable(cardDTO.getCardName()).orElse("John Doe"));

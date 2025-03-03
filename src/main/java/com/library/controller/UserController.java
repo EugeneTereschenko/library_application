@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -43,12 +44,14 @@ public class UserController {
     public ResponseEntity<Map<String, String>> login(HttpServletResponse response,
                                                      HttpSession session,
                                                      @RequestBody @Valid UserDTO loginDTO) throws IOException {
+
+        User user = userService.getUserByEmail(loginDTO.getEmail());
         log.info("request for User controller. login: " + loginDTO.getPassword() + " " + loginDTO.getUsername());
-        String token = userService.authenticateUser(loginDTO.getUsername(), loginDTO.getPassword());
+        String token = userService.authenticateUser(Optional.ofNullable(user.getUsername()).orElse(loginDTO.getUsername()), loginDTO.getPassword());
         log.info("token: " + token);
         Map<String, String> tokenMap = new HashMap<>();
         tokenMap.put("token", token);
-        tokenMap.put("userID", String.valueOf(userService.getUserByUsername(loginDTO.getUsername()).getUserID()));
+        tokenMap.put("userID", String.valueOf(user.getUserID()));
         return new ResponseEntity<>(tokenMap, HttpStatus.OK);
     }
 
