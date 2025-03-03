@@ -15,10 +15,3 @@ public class LibraryApplication {
 
 }
 
-
-/*
-CREATE USER 'testuser'@'email.com' IDENTIFIED BY 'AyRGzYuaJFCV8N';
-GRANT ALL PRIVILEGES ON *.* TO 'testuser'@'email.com' WITH GRANT OPTION;
-FLUSH PRIVILEGES;
-EXIT;
-*/
